@@ -1,0 +1,27 @@
+msg:
+  horse:
+    move:
+      'true': "\xa7bYour horse {horsename} can now move!"
+      'false': "\xa7bYour horse {horsename} is now staying!"
+    die: "\xa74Your horse {horsename} was killed by {cause}"
+    wrongName: "\xa74You do not own a horse named {horsename}"
+    unauthorizedAccess: Player {playername} tried to get access to {horseowner}'s horse {horsename}!
+    registerMode:
+      add: "\xa7bRight click a horse to claim it as your own or release it!"
+      remove: "\xa7bYou were \xa74removed \xa7bfrom horse register mode!"
+      noName: "\xa74Please specify a name for your horse!"
+      assignedName: "\xa74The given name is already assigned to another horse!"
+      registered: "\xa7bYou registered your {horsenumber} horse!"
+      unregistered: "\xa7bYou only have {horsenumber} horse(s) now!"
+    stayMode:
+      remove: "\xa7bYou were \xa74removed \xa7bfrom horse stay mode!"
+      add: "\xa7bRight click a horse to toggle staying!"
+    tpto:
+      argument: "\xa74Please specify the horse's name you wish to teleport to!"
+      success: "\xa7bYou were teleported to your horse {horsename}"
+    tphere:
+      argument: "\xa74Please specify the horse's name you wish to teleport to you!"
+      success: "\xa7bYour horse {horsename} was teleported to you!"
+  command:
+    noPlayer: "\xa74You need to be a player to execute this command!"
+    arguments: "\xa74Choose some arguments ('tab' for auto completion)"

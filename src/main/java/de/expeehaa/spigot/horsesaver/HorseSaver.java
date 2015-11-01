@@ -46,6 +46,10 @@ public class HorseSaver extends JavaPlugin implements Listener {
 	private void reloadCfg() {
 		
 		this.reloadConfig();
+		this.getConfig().options().copyDefaults(true);
+		this.saveConfig();
+		
+		
 		if(this.getConfig().get("savedhorses") != null){
 			HashMap<String, Object> savedhorses = (HashMap<String, Object>) this.getConfig().getConfigurationSection("savedhorses").getValues(false);
 			for (Entry<String, Object> entry : savedhorses.entrySet()) {
@@ -61,34 +65,6 @@ public class HorseSaver extends JavaPlugin implements Listener {
 				stayingHorses.add(getHorseByUUID(String.valueOf(o)));
 			}
 		}
-		
-		
-		this.getConfig().addDefault("msg.horse.move.true", "§bYour horse {horsename} can now move!");
-		this.getConfig().addDefault("msg.horse.move.false", "§bYour horse {horsename} is now staying!");
-		this.getConfig().addDefault("msg.horse.die", "§4Your horse {horsename} was killed by {cause}");
-		this.getConfig().addDefault("msg.horse.wrongName", "§4You do not own a horse named {horsename}");
-		this.getConfig().addDefault("msg.horse.unauthorizedAccess", "Player {playername} tried to get access to {horseowner}'s horse {horsename}!");
-		
-		this.getConfig().addDefault("msg.horse.registerMode.add", "§bRight click a horse to claim it as your own or release it!");
-		this.getConfig().addDefault("msg.horse.registerMode.remove", "§bYou were §4removed §bfrom horse register mode!");
-		this.getConfig().addDefault("msg.horse.registerMode.noName", "§4Please specify a name for your horse!");
-		this.getConfig().addDefault("msg.horse.registerMode.assignedName", "§4The given name is already assigned to another horse!");
-		this.getConfig().addDefault("msg.horse.registerMode.registered", "§bYou registered your {horsenumber} horse!");
-		this.getConfig().addDefault("msg.horse.registerMode.unregistered", "§bYou only have {horsenumber} horse(s) now!");
-		
-		this.getConfig().addDefault("msg.horse.stayMode.remove", "§bYou were §4removed §bfrom horse stay mode!");
-		this.getConfig().addDefault("msg.horse.stayMode.add", "§bRight click a horse to toggle staying!");
-		
-		this.getConfig().addDefault("msg.horse.tpto.argument", "§4Please specify the horse's name you wish to teleport to!");
-		this.getConfig().addDefault("msg.horse.tpto.success", "§bYou were teleported to your horse {horsename}");
-		
-		this.getConfig().addDefault("msg.horse.tphere.argument", "§4Please specify the horse's name you wish to teleport to you!");
-		this.getConfig().addDefault("msg.horse.tphere.success", "§bYour horse {horsename} was teleported to you!");
-		
-		this.getConfig().addDefault("msg.command.noPlayer", "§4You need to be a player to execute this command!");
-		this.getConfig().addDefault("msg.command.arguments", "§4Choose some arguments ('tab' for auto completion)");
-		this.getConfig().options().copyDefaults(true);
-		this.saveConfig();
 		this.reloadConfig();
 	}
 
