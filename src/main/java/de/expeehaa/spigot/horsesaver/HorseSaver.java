@@ -27,10 +27,10 @@ import org.bukkit.potion.PotionEffectType;
 public class HorseSaver extends JavaPlugin implements Listener {
 
 	//essential variables
-	HashMap<Horse, UUID> horses = new HashMap<>();
-	HashMap<Player, String> playerRegisterHorseMode = new HashMap<>();
-	List<Player> playerStayHorseMode = new ArrayList<>();
-	List<Horse> stayingHorses = new ArrayList<>();
+	HashMap<Horse, UUID> horses = new HashMap<Horse, UUID>();
+	HashMap<Player, String> playerRegisterHorseMode = new HashMap<Player, String>();
+	List<Player> playerStayHorseMode = new ArrayList<Player>();
+	List<Horse> stayingHorses = new ArrayList<Horse>();
 	Logger log = this.getServer().getLogger();
 	
 	//functional variables; partially used
@@ -125,7 +125,7 @@ public class HorseSaver extends JavaPlugin implements Listener {
 	}
 	
 	private List<String> getPlayersOwnedHorses(Player p){
-		List<String> list = new ArrayList<>();
+		List<String> list = new ArrayList<String>();
 		if(!horses.containsValue(p.getUniqueId())) return list;
 		horses.keySet().stream().filter(e -> horses.get(e).equals(p.getUniqueId())).collect(Collectors.toList()).forEach(h -> list.add(h.getCustomName()));
 		return list;
@@ -134,14 +134,14 @@ public class HorseSaver extends JavaPlugin implements Listener {
 	//refresh the config.yml with new information
 	private void refreshConfig(){
 		//horse-player-relationship
-		HashMap<String, String> horsesToSave = new HashMap<>();
+		HashMap<String, String> horsesToSave = new HashMap<String, String>();
 		for (Entry<Horse, UUID> entry : horses.entrySet()) {
 			horsesToSave.put(entry.getKey().getUniqueId().toString(), entry.getValue().toString());
 		}
 		this.getConfig().set("savedhorses", horsesToSave);
 		
 		//staying horses
-		List<String> list = new ArrayList<>();
+		List<String> list = new ArrayList<String>();
 		for (Horse h : stayingHorses) {
 			list.add(h.getUniqueId().toString());
 		}
@@ -391,7 +391,7 @@ public class HorseSaver extends JavaPlugin implements Listener {
 	
 	@Override
 	public List<String> onTabComplete(CommandSender sender, Command cmd, String alias, String[] args) {
-		List<String> list = new ArrayList<>();
+		List<String> list = new ArrayList<String>();
 		
 		if(!(sender instanceof Player)) return null;
 		
