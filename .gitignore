@@ -30,7 +30,7 @@ local.properties
 .texlipse
 
 *.iml
-.idea/
+.idea/*
 
 *.ipr
 *.iws
