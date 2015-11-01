@@ -1,0 +1,34 @@
+name: HorseSaver
+version: 1.0
+main: de.expeehaa.spigot.horsesaver.HorseSaver
+author: expeehaa
+commands:
+  horse:
+    usage: /horse
+    description: Commands for the HorseSaver plugin.
+permissions:
+  horsesaver.*:
+    description: You have full plugin rights.
+    children:
+      horsesaver.register: true
+      horsesaver.stay: true
+      horsesaver.tpto: true
+      horsesaver.tphere: true
+  horsesaver.register:
+    description: Claim a free horse or release it.
+    default: true
+  horsesaver.stay:
+    description: Control wether your horse can move or not.
+    default: true
+    children:
+      horsesaver.save: true
+  horsesaver.tpto:
+    description: Teleport yourself to one of your horses.
+    default: true
+    children:
+      horsesaver.save: true
+  horsesaver.tphere:
+    description: Teleport one of your horses to yourself
+    default: true
+    children:
+      horsesaver.save: true
