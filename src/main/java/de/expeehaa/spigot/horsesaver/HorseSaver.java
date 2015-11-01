@@ -14,12 +14,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Horse;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.EntityDeathEvent;
-import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -27,10 +22,10 @@ import org.bukkit.potion.PotionEffectType;
 public class HorseSaver extends JavaPlugin implements Listener {
 
 	//essential variables
-	HashMap<Horse, UUID> horses = new HashMap<Horse, UUID>();
-	HashMap<Player, String> playerRegisterHorseMode = new HashMap<Player, String>();
-	List<Player> playerStayHorseMode = new ArrayList<Player>();
-	List<Horse> stayingHorses = new ArrayList<Horse>();
+	HashMap<Horse, UUID> horses = new HashMap<>();
+	HashMap<Player, String> playerRegisterHorseMode = new HashMap<>();
+	List<Player> playerStayHorseMode = new ArrayList<>();
+	List<Horse> stayingHorses = new ArrayList<>();
 	Logger log = this.getServer().getLogger();
 	
 	//functional variables; partially used
@@ -38,7 +33,7 @@ public class HorseSaver extends JavaPlugin implements Listener {
 	@Override
 	public void onEnable() {
 		reloadCfg();
-		this.getServer().getPluginManager().registerEvents(this, this);
+		this.getServer().getPluginManager().registerEvents(new HorseSaverEventListener(this), this);
 	}
 
 	
@@ -125,23 +120,23 @@ public class HorseSaver extends JavaPlugin implements Listener {
 	}
 	
 	private List<String> getPlayersOwnedHorses(Player p){
-		List<String> list = new ArrayList<String>();
+		List<String> list = new ArrayList<>();
 		if(!horses.containsValue(p.getUniqueId())) return list;
 		horses.keySet().stream().filter(e -> horses.get(e).equals(p.getUniqueId())).collect(Collectors.toList()).forEach(h -> list.add(h.getCustomName()));
 		return list;
 	}
 	
 	//refresh the config.yml with new information
-	private void refreshConfig(){
+	void refreshConfig(){
 		//horse-player-relationship
-		HashMap<String, String> horsesToSave = new HashMap<String, String>();
+		HashMap<String, String> horsesToSave = new HashMap<>();
 		for (Entry<Horse, UUID> entry : horses.entrySet()) {
 			horsesToSave.put(entry.getKey().getUniqueId().toString(), entry.getValue().toString());
 		}
 		this.getConfig().set("savedhorses", horsesToSave);
 		
 		//staying horses
-		List<String> list = new ArrayList<String>();
+		List<String> list = new ArrayList<>();
 		for (Horse h : stayingHorses) {
 			list.add(h.getUniqueId().toString());
 		}
@@ -152,7 +147,7 @@ public class HorseSaver extends JavaPlugin implements Listener {
 	}
 	
 	//toggle horse staying
-	private void toggleHorseStaying(Horse h, Player p, boolean event){
+	void toggleHorseStaying(Horse h, Player p, boolean event){
 		//free horse
 		if(stayingHorses.contains(h)) {
 			stayingHorses.remove(h);
@@ -176,104 +171,7 @@ public class HorseSaver extends JavaPlugin implements Listener {
 	
 	//Event Handlers
 	
-	@EventHandler
-	public void onEntityDamaged(EntityDamageEvent e){
-		if(e.getEntity() instanceof Horse 
-				&& horses.containsKey((Horse)e.getEntity())){
-			e.setCancelled(true);
-		}
-	}
-	
-	@EventHandler(priority = EventPriority.HIGHEST)
-	public void onEntityDeath(EntityDeathEvent e){
-		if(e.getEntity() instanceof Horse
-				&& horses.containsKey((Horse)e.getEntity())){
-			Horse h = (Horse)e.getEntity();
-			if(this.getServer().getPlayer(horses.get(h)) != null){
-				this.getServer().getPlayer(this.getConfig().getString("msg.horse.die").replaceAll("\\{horsename\\}", h.getCustomName()).replaceAll("\\{cause\\}", h.getLastDamageCause().getCause().toString()));
-			}
-			horses.remove(h);
-			if(stayingHorses.contains(h)) stayingHorses.remove(h);
-		}
-	}
-	
-	@EventHandler(priority = EventPriority.HIGHEST)
-	public void onPlayerInteractsWithEntity(PlayerInteractEntityEvent e){
-		//log.info("Player " + e.getPlayer().getName() + " is rightclicking on entity");
-		Player p = e.getPlayer();
-		Entity entity = e.getRightClicked();
-		
-		/*log.info("horse? " + (entity instanceof Horse ? "true" : "false") 
-				+ " registered? " + (horses.containsKey((Horse)entity) ? "true" : "false")
-				+ " sneaking? " + (p.isSneaking() ? "true" : "false")
-				+ " staymode? " + (playerStayHorseMode.contains(p) ? "true" : "false")
-				+ " savemode? " + (playerSaveHorseMode.containsKey(p) ? "true" : "false"));*/
-		
-		if(entity instanceof Horse 
-				&& horses.containsKey((Horse)entity)){
-			if(!horses.get((Horse)entity).equals(p.getUniqueId())){
-				String horseownername = null;
-				if(this.getServer().getOfflinePlayer(horses.get((Horse)entity)) != null) horseownername = this.getServer().getOfflinePlayer(horses.get((Horse)entity)).getName();
-				else horseownername = this.getServer().getPlayer(horses.get((Horse)entity)).getName();
-				log.info(this.getConfig().getString("msg.horse.unauthorizedAccess").replaceAll("\\{playername\\}", p.getName()).replaceAll("\\{horseowner\\}", horseownername).replaceAll("\\{horsename\\}", ((Horse)entity).getCustomName()));
-				e.setCancelled(true);
-				return;
-			}
-		}
-		//registering and releasing horses
-		if(entity instanceof Horse
-				&& playerRegisterHorseMode.containsKey(p)
-				&& p.isSneaking()){
-			//log.info("(Un-)Registering horse for player " + p.getName());
-			//register horse
-			if(!horses.containsKey((Horse)entity)){
-				log.info("");
-				entity.setCustomName(playerRegisterHorseMode.get(p));
-				entity.setCustomNameVisible(true);
-				horses.put((Horse)entity, p.getUniqueId());
-				playerRegisterHorseMode.remove(p);
-				int horsecount = 0;
-				for (Entry<Horse, UUID> entry : horses.entrySet()) {
-					if(entry.getValue().equals(p.getUniqueId())) horsecount++;
-				}
-				e.getPlayer().sendMessage(this.getConfig().getString("msg.horse.registerMode.registered").replaceAll("\\{horsenumber\\}", String.valueOf(horsecount)));
-				e.setCancelled(true);
-			}
-			
-			
-			//release horse
-			else {
-				entity.setCustomName("former used by HorseSaver");
-				entity.setCustomNameVisible(false);
-				
-				horses.remove((Horse)entity);
-				playerRegisterHorseMode.remove(p);
-				int horsecount = 0;
-				for (Entry<Horse, UUID> entry : horses.entrySet()) {
-					if(entry.getValue().equals(p.getUniqueId())) horsecount++;
-				}
-				e.getPlayer().sendMessage(this.getConfig().getString("msg.horse.registerMode.unregistered").replaceAll("\\{horsenumber\\}", String.valueOf(horsecount)));
-				e.setCancelled(true);
-			}
-			
-			//refresh config.yml
-			refreshConfig();
-			return;
-		}
-		//make horses stay or not stay
-		if(entity instanceof Horse 
-				&& playerStayHorseMode.contains(p)
-				&& p.isSneaking()){
-			
-			
-			toggleHorseStaying((Horse)entity, p, true);
-			
-			e.setCancelled(true);
-			//refresh config.yml
-			refreshConfig();
-			return;
-		}
-	}
+
 	
 	
 	
@@ -391,7 +289,7 @@ public class HorseSaver extends JavaPlugin implements Listener {
 	
 	@Override
 	public List<String> onTabComplete(CommandSender sender, Command cmd, String alias, String[] args) {
-		List<String> list = new ArrayList<String>();
+		List<String> list = new ArrayList<>();
 		
 		if(!(sender instanceof Player)) return null;
 		
